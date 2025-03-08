@@ -124,6 +124,24 @@ st.markdown(f"""
         font-weight: bold !important;
         color: white !important;
     }}
+             button[aria-label="Show password"] {{
+        background: black !important;
+        color: white !important;
+        border-radius: 50% !important;
+        padding: 6px !important;
+        border: 1px solid white !important;
+        box-shadow: none !important;
+    }}
+
+    button[aria-label="Show password"]:hover {{
+        background: #333 !important;
+    }}
+
+    button[aria-label="Show password"] svg {{
+        fill: white !important;
+        stroke: white !important;
+    }}
+            
 </style>
 """, unsafe_allow_html=True)
 
@@ -178,7 +196,8 @@ def main():
     password = st.text_input("", 
                            type="password", 
                            placeholder="Enter your password here... 🔑", 
-                           value=st.session_state.get('generated_password', ''))
+                           value=st.session_state.get('generated_password', '')
+                           )
     
     if password:
         result = password_strength(password)
