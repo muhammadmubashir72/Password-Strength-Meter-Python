@@ -63,28 +63,28 @@ st.set_page_config(
 
 st.markdown(f"""
 <style>
-    /* Remove custom background color */
+    /* Set Dark Background */
     .stApp {{
-        background: none !important;
+        background-color: #121212 !important; /* Dark Background */
     }}
 
-    /* Remove custom input field colors */
+    /* Keep Input Fields Default */
     .stTextInput input {{
-        background-color: transparent !important;
-        color: inherit !important;
+        background-color: #1e1e1e !important;
+        color: white !important;
     }}
 
-    /* Remove custom button styles */
+    /* Keep Buttons Default */
     .stButton>button {{
-        color: inherit !important;
-        background-color: inherit !important;
-        border-radius: inherit !important;
-        padding: inherit !important;
+        background-color: #333 !important;
+        color: white !important;
+        border-radius: 8px;
+        padding: 10px;
     }}
 
-    /* Remove custom title colors */
+    /* Keep Titles and Text Default */
     .stTitle, h1, h2, h3, h4, h5, h6 {{
-        color: inherit !important;
+        color: white !important;
     }}
 </style>
 """, unsafe_allow_html=True)
