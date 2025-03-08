@@ -63,15 +63,18 @@ st.set_page_config(
 
 st.markdown(f"""
 <style>
+    /* Full Dark Background */
     .stApp {{
-        background-color: #121212 !important; /* Dark Background */
+        background-color: #121212 !important;
     }}
 
-    /* Input Field */
+    /* Input Field Styling */
     .stTextInput input {{
         background-color: #1e1e1e !important;
         color: white !important;
         border: 1px solid #333 !important;
+        padding: 10px !important;
+        border-radius: 5px !important;
     }}
 
     /* Placeholder Text (Hint Text) */
@@ -80,11 +83,13 @@ st.markdown(f"""
         opacity: 1 !important;
     }}
 
-    /* Eye Button for Show/Hide Password */
-    .stTextInput [type="password"] + div button {{
-        background-color: black !important;
+    /* Password Show/Hide Eye Icon */
+    .stTextInput div[data-testid="stTextInput"] div button {{
+        background-color: black !important; /* Black Background */
+        color: white !important; /* White Icon */
         border-radius: 50% !important;
-        padding: 5px;
+        padding: 6px !important;
+        border: 1px solid white !important;
     }}
 
     /* Button Styling */
@@ -92,11 +97,31 @@ st.markdown(f"""
         background-color: #333 !important;
         color: white !important;
         border-radius: 8px;
-        padding: 10px;
+        padding: 12px 20px !important;
+        font-size: 16px !important;
+        font-weight: bold !important;
+        transition: 0.3s !important;
     }}
 
-    /* Text Color */
+    /* Button Hover Effect */
+    .stButton>button:hover {{
+        background-color: #555 !important;
+    }}
+
+    /* Text Color (Headings & Paragraphs) */
     .stTitle, h1, h2, h3, h4, h5, h6, p, span, div {{
+        color: white !important;
+    }}
+
+    /* Password Strength Bar */
+    div[data-testid="stProgress"] > div {{
+        background-color: black !important; /* Black Background for Strength Bar */
+    }}
+
+    /* Strong, Medium, Weak Text Styling */
+    .stMarkdown p {{
+        font-size: 18px !important;
+        font-weight: bold !important;
         color: white !important;
     }}
 </style>
