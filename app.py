@@ -63,18 +63,15 @@ st.set_page_config(
 
 st.markdown(f"""
 <style>
-    /* Set Dark Background */
     .stApp {{
-        background-color: #121212 !important; /* Dark Background */
+        background-color: #121212 !important; /* Dark Mode */
     }}
 
-    /* Keep Input Fields Default */
     .stTextInput input {{
         background-color: #1e1e1e !important;
         color: white !important;
     }}
 
-    /* Keep Buttons Default */
     .stButton>button {{
         background-color: #333 !important;
         color: white !important;
@@ -82,9 +79,15 @@ st.markdown(f"""
         padding: 10px;
     }}
 
-    /* Keep Titles and Text Default */
-    .stTitle, h1, h2, h3, h4, h5, h6 {{
+    .stTitle, h1, h2, h3, h4, h5, h6, p, span, div {{
         color: white !important;
+    }}
+
+    /* Password Strength Styling */
+    .strength-meter {{
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #FFD700; /* Gold color */
     }}
 </style>
 """, unsafe_allow_html=True)
