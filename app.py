@@ -66,37 +66,85 @@ st.set_page_config(
 st.markdown(f"""
 <style>
     .stApp {{
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-            url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }}
-    
-    .st-emotion-cache-1y4p8pa {{
-        background-color: rgba(255, 255, 255, 0.92) !important;
-        border-radius: 15px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(8px);
-        margin: 2rem auto;
-        max-width: 800px;
+        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+        url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
     }}
-    
-    [data-dark] .st-emotion-cache-1y4p8pa {{
-        background-color: rgba(0, 0, 0, 0.85) !important;
+
+    /* White text for all elements */
+    .stMarkdown, .stTitle, .stTextInput, .stButton, .stExpander, .stAlert, .stCode, 
+    .stColumns, .stSelectbox, .stFileUploader, .stCheckbox, .stRadio, .stNumberInput {{
+        color: white !important;
     }}
-    
+
+    /* Input fields white text */
     .stTextInput input {{
         background-color: #20120f !important;
         color: white !important;
-                }}
-    
-    [data-dark] .stTextInput input {{
+    }}
+
+    /* Dark mode settings */
+    [data-dark] .stApp, [data-dark] .stTextInput input {{
         background-color: rgba(0, 0, 0, 0.8) !important;
         color: white !important;
     }}
+
+    /* White titles */
+    .stTitle, h1, h2, h3, h4, h5, h6 {{
+        color: white !important;
+    }}
+
+    /* White buttons with dark mode effect */
+    .stButton>button {{
+        color: white !important;
+        background-color: #333 !important;
+        border-radius: 8px;
+        padding: 10px;
+    }}
+
+    /* Button hover effect */
+    .stButton>button:hover {{
+        background-color: #555 !important;
+    }}
 </style>
 """, unsafe_allow_html=True)
+
+# st.markdown(f"""
+# <style>
+#     .stApp {{
+#             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+#             url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
+#             background-size: cover;
+#             background-position: center;
+#             background-attachment: fixed;
+#         }}
+    
+#     .st-emotion-cache-1y4p8pa {{
+#         background-color: rgba(255, 255, 255, 0.92) !important;
+#         border-radius: 15px;
+#         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+#         backdrop-filter: blur(8px);
+#         margin: 2rem auto;
+#         max-width: 800px;
+#     }}
+    
+#     [data-dark] .st-emotion-cache-1y4p8pa {{
+#         background-color: rgba(0, 0, 0, 0.85) !important;
+#     }}
+    
+#     .stTextInput input {{
+#         background-color: #20120f !important;
+#         color: white !important;
+#                 }}
+    
+#     [data-dark] .stTextInput input {{
+#         background-color: rgba(0, 0, 0, 0.8) !important;
+#         color: white !important;
+#     }}
+# </style>
+# """, unsafe_allow_html=True)
 
 def main():
     st.session_state.setdefault('dark_mode', False)
