@@ -64,14 +64,30 @@ st.set_page_config(
 st.markdown(f"""
 <style>
     .stApp {{
-        background-color: #121212 !important; /* Dark Mode */
+        background-color: #121212 !important; /* Dark Background */
     }}
 
+    /* Input Field */
     .stTextInput input {{
         background-color: #1e1e1e !important;
         color: white !important;
+        border: 1px solid #333 !important;
     }}
 
+    /* Placeholder Text (Hint Text) */
+    ::placeholder {{
+        color: #bbbbbb !important; /* Light Grey */
+        opacity: 1 !important;
+    }}
+
+    /* Eye Button for Show/Hide Password */
+    .stTextInput [type="password"] + div button {{
+        background-color: black !important;
+        border-radius: 50% !important;
+        padding: 5px;
+    }}
+
+    /* Button Styling */
     .stButton>button {{
         background-color: #333 !important;
         color: white !important;
@@ -79,15 +95,9 @@ st.markdown(f"""
         padding: 10px;
     }}
 
+    /* Text Color */
     .stTitle, h1, h2, h3, h4, h5, h6, p, span, div {{
         color: white !important;
-    }}
-
-    /* Password Strength Styling */
-    .strength-meter {{
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #FFD700; /* Gold color */
     }}
 </style>
 """, unsafe_allow_html=True)
