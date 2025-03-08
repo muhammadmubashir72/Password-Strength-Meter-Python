@@ -67,7 +67,7 @@ st.markdown(f"""
 <style>
     .stApp {{
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-            url("https://cdn.prod.website-files.com/66ec8a7d38194b26f3a9fc19%2F66edbe7a6f9761695ee6d1cd_BlueParadigm-poster-00001.jpg");
+            url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
