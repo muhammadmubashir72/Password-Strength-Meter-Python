@@ -3,8 +3,6 @@ import re
 import random
 from streamlit.components.v1 import html
 
-def toggle_theme():
-    st.session_state.dark_mode = not st.session_state.get('dark_mode', False)
 
 def get_emoji(status):
     return "✅" if status else "❌"
@@ -65,48 +63,28 @@ st.set_page_config(
 
 st.markdown(f"""
 <style>
+    /* Remove custom background color */
     .stApp {{
-        background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-        url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
+        background: none !important;
     }}
 
-    /* White text for all elements */
-    .stMarkdown, .stTitle, .stTextInput, .stButton, .stExpander, .stAlert, .stCode, 
-    .stColumns, .stSelectbox, .stFileUploader, .stCheckbox, .stRadio, .stNumberInput {{
-        color: white !important;
-    }}
-
-    /* Input fields white text */
+    /* Remove custom input field colors */
     .stTextInput input {{
-        background-color: #20120f !important;
-        color: white !important;
+        background-color: transparent !important;
+        color: inherit !important;
     }}
 
-    /* Dark mode settings */
-    [data-dark] .stApp, [data-dark] .stTextInput input {{
-        background-color: rgba(0, 0, 0, 0.8) !important;
-        color: white !important;
-    }}
-
-    /* White titles */
-    .stTitle, h1, h2, h3, h4, h5, h6 {{
-        color: white !important;
-    }}
-
-    /* White buttons with dark mode effect */
+    /* Remove custom button styles */
     .stButton>button {{
-        color: white !important;
-        background-color: #333 !important;
-        border-radius: 8px;
-        padding: 10px;
+        color: inherit !important;
+        background-color: inherit !important;
+        border-radius: inherit !important;
+        padding: inherit !important;
     }}
 
-    /* Button hover effect */
-    .stButton>button:hover {{
-        background-color: #555 !important;
+    /* Remove custom title colors */
+    .stTitle, h1, h2, h3, h4, h5, h6 {{
+        color: inherit !important;
     }}
 </style>
 """, unsafe_allow_html=True)
@@ -147,12 +125,6 @@ st.markdown(f"""
 # """, unsafe_allow_html=True)
 
 def main():
-    st.session_state.setdefault('dark_mode', False)
-    
-    html("""<button onclick="window.parent.document.querySelector('.stApp').toggleAttribute('data-dark');" 
-            style="position:fixed;top:10px;right:10px;z-index:9999;background:rgba(255,255,255,0.8);border:none;border-radius:50%;width:40px;height:40px;font-size:20px;cursor:pointer;">
-            🌓
-        </button>""")
     
     with st.container():
         st.title("🔐 Password Power Meter")
