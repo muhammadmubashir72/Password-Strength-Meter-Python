@@ -124,24 +124,23 @@ st.markdown(f"""
         font-weight: bold !important;
         color: white !important;
     }}
-             button[aria-label="Show password"] {{
-        background: black !important;
-        color: white !important;
-        border-radius: 50% !important;
-        padding: 6px !important;
+     /* Show/Hide Password Icon Background */
+    button[data-testid="baseButton-header"] {{
+        background-color: black !important;
         border: 1px solid white !important;
-        box-shadow: none !important;
+        border-radius: 50% !important;
+        padding: 4px !important;
     }}
 
-    button[aria-label="Show password"]:hover {{
-        background: #333 !important;
-    }}
-
-    button[aria-label="Show password"] svg {{
+    /* Icon Color */
+    button[data-testid="baseButton-header"] svg {{
         fill: white !important;
-        stroke: white !important;
     }}
-            
+
+    /* Hover Effect */
+    button[data-testid="baseButton-header"]:hover {{
+        background-color: #333 !important;
+    }}
 </style>
 """, unsafe_allow_html=True)
 
