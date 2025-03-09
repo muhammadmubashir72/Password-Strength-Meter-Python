@@ -1,9 +1,145 @@
 import streamlit as st
 import re
 import random
-from streamlit.components.v1 import html
+import time
+from streamlit_lottie import st_lottie
+import requests
+import json
 
+# Set page configuration
+st.set_page_config(
+    page_title="Password Power Meter",
+    page_icon="🔒",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
 
+# Custom CSS for better styling with responsive header
+st.markdown("""
+<style>
+    .main {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 20px;
+        border-radius: 10px;
+    }
+    .stButton>button {
+        background-color: #4CAF50;
+        color: white;
+        font-weight: bold;
+        border-radius: 20px;
+        padding: 10px 24px;
+        transition: all 0.3s ease;
+    }
+    .stButton>button:hover {
+        background-color: #45a049;
+        transform: scale(1.05);
+    }
+    .generated-password {
+        background-color: #f8f9fa;
+        padding: 15px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 18px;
+        border-left: 4px solid #4CAF50;
+        margin: 10px 0;
+    }
+    .copy-button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 5px 10px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .strength-meter {
+        height: 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        transition: all 0.5s ease;
+    }
+    .strength-label {
+        font-size: 2rem;
+        text-align: center;
+        margin: 1rem 0;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    .tip-card {
+        background-color: #1B1212;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+    }
+    .tip-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    /* Responsive header styles */
+    .responsive-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .responsive-header h1 {
+        margin-bottom: 0;
+        font-size: 2.5rem;
+    }
+    
+    .responsive-header .subtitle {
+        font-size: 1.2rem;
+        margin-top: 0.5rem;
+    }
+    
+    /* Media query for tablets and larger */
+    @media (min-width: 768px) {
+        .responsive-header {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            align-items: baseline;
+        }
+        
+        .responsive-header h1 {
+            font-size: 3rem;
+            margin-bottom: 0;
+        }
+        
+        .responsive-header .subtitle {
+            font-size: 1.5rem;
+            margin-top: 0;
+        }
+    }
+    
+    /* Media query for desktops */
+    @media (min-width: 992px) {
+        .responsive-header h1 {
+            font-size: 3.5rem;
+        }
+        
+        .responsive-header .subtitle {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Function to load Lottie animations
+def load_lottieurl(url):
+    try:
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
+        return None
+
+# Password strength functions
 def get_emoji(status):
     return "✅" if status else "❌"
 
@@ -11,30 +147,42 @@ def get_strength_emoji(strength):
     emojis = ["😱", "😨", "😐", "😊", "💪"]
     return emojis[strength]
 
-def generate_password():
-    characters = {
-        'lower': 'abcdefghijklmnopqrstuvwxyz',
-        'upper': 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-        'digits': '0123456789',
-        'symbols': '!@#$%^&*(),.?":{}|<>'
-    }
-    password = [
-        random.choice(characters['lower']),
-        random.choice(characters['upper']),
-        random.choice(characters['digits']),
-        random.choice(characters['symbols'])
-    ]
-    password += random.choices(
-        ''.join(characters.values()), 
-        k=12
-    )
+def get_strength_color(strength):
+    colors = ["#ff4d4d", "#ffa64d", "#ffff4d", "#4dff4d", "#4d4dff"]
+    return colors[strength]
+
+def generate_password(length=16, include_lower=True, include_upper=True, include_digits=True, include_symbols=True):
+    characters = {}
+    if include_lower:
+        characters['lower'] = 'abcdefghijklmnopqrstuvwxyz'
+    if include_upper:
+        characters['upper'] = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    if include_digits:
+        characters['digits'] = '0123456789'
+    if include_symbols:
+        characters['symbols'] = '!@#$%^&*(),.?":{}|<>'
+    
+    if not characters:
+        return "Please select at least one character type"
+    
+    # Ensure at least one character from each selected type
+    password = []
+    for char_type, chars in characters.items():
+        password.append(random.choice(chars))
+    
+    # Fill the rest of the password
+    remaining_length = max(0, length - len(password))
+    all_chars = ''.join(characters.values())
+    password += random.choices(all_chars, k=remaining_length)
+    
+    # Shuffle the password
     random.shuffle(password)
     return ''.join(password)
 
 def password_strength(password):
     score = 0
-    feedback = []
     
+    # Basic checks
     length = len(password) >= 8
     score += 1 if length else 0
     uppercase = bool(re.search(r'[A-Z]', password))
@@ -46,191 +194,219 @@ def password_strength(password):
     special = bool(re.search(r'[!@#$%^&*(),.?":{}|<>]', password))
     score += 1 if special else 0
     
+    # Advanced checks
+    if len(password) >= 12:
+        score += 1
+    
+    # Check for common patterns
+    common_patterns = [
+        r'12345', r'qwerty', r'password', r'admin', r'welcome',
+        r'123123', r'abcabc', r'abc123', r'password123'
+    ]
+    for pattern in common_patterns:
+        if re.search(pattern, password.lower()):
+            score = max(0, score - 2)
+            break
+    
+    # Check for sequential characters
+    sequential = False
+    for i in range(len(password) - 2):
+        if (ord(password[i]) + 1 == ord(password[i+1]) and 
+            ord(password[i+1]) + 1 == ord(password[i+2])):
+            sequential = True
+            break
+    if sequential:
+        score = max(0, score - 1)
+    
+    # Normalize score to 0-4 range
+    normalized_score = min(4, max(0, score))
+    
     return {
-        'strength': min(score, 4),
+        'strength': normalized_score,
         'length': length,
         'uppercase': uppercase,
         'lowercase': lowercase,
         'digit': digit,
-        'special': special
+        'special': special,
+        'long_enough': len(password) >= 12,
+        'no_patterns': not any(re.search(p, password.lower()) for p in common_patterns),
+        'no_sequential': not sequential
     }
 
-st.set_page_config(
-    page_title="Password Power Meter",
-    page_icon="🔒",
-    layout="centered"
-)
+def get_strength_message(strength):
+    messages = [
+        "Very Weak! Your password needs serious improvement.",
+        "Weak. Your password is vulnerable to attacks.",
+        "Medium. Your password provides basic protection.",
+        "Strong. Your password offers good security.",
+        "Very Strong! Your password is highly secure."
+    ]
+    return messages[strength]
 
-st.markdown(f"""
-<style>
-    /* Full Dark Background */
-    .stApp {{
-        background-color: #121212 !important;
-    }}
-
-    /* Input Field Styling */
-    .stTextInput input {{
-        background-color: #1e1e1e !important;
-        color: white !important;
-        border: 1px solid #333 !important;
-        padding: 10px !important;
-        border-radius: 5px !important;
-    }}
-
-    /* Placeholder Text (Hint Text) */
-    ::placeholder {{
-        color: #bbbbbb !important; /* Light Grey */
-        opacity: 1 !important;
-    }}
-
-    /* Password Show/Hide Eye Icon */
-    .stTextInput div[data-testid="stTextInput"] div button {{
-        background-color: black !important; /* Black Background */
-        color: white !important; /* White Icon */
-        border-radius: 50% !important;
-        padding: 6px !important;
-        border: 1px solid white !important;
-    }}
-
-    /* Button Styling */
-    .stButton>button {{
-        background-color: #333 !important;
-        color: white !important;
-        border-radius: 8px;
-        padding: 12px 20px !important;
-        font-size: 16px !important;
-        font-weight: bold !important;
-        transition: 0.3s !important;
-    }}
-
-    /* Button Hover Effect */
-    .stButton>button:hover {{
-        background-color: #555 !important;
-    }}
-
-    /* Text Color (Headings & Paragraphs) */
-    .stTitle, h1, h2, h3, h4, h5, h6, p, span, div {{
-        color: white !important;
-    }}
-
-    /* Password Strength Bar */
-    div[data-testid="stProgress"] > div {{
-        background-color: black !important; /* Black Background for Strength Bar */
-    }}
-
-    /* Strong, Medium, Weak Text Styling */
-    .stMarkdown p {{
-        font-size: 18px !important;
-        font-weight: bold !important;
-        color: white !important;
-    }}
-     /* Show/Hide Password Icon Background */
-    button[data-testid="baseButton-header"] {{
-        background-color: black !important;
-        border: 1px solid white !important;
-        border-radius: 50% !important;
-        padding: 4px !important;
-    }}
-
-    /* Icon Color */
-    button[data-testid="baseButton-header"] svg {{
-        fill: white !important;
-    }}
-
-    /* Hover Effect */
-    button[data-testid="baseButton-header"]:hover {{
-        background-color: #333 !important;
-    }}
-</style>
-""", unsafe_allow_html=True)
-
-# st.markdown(f"""
-# <style>
-#     .stApp {{
-#             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-#             url("https://github.com/muhammadmubashir72/Password-Strength-Meter-Python/blob/master/static/background.jpg?raw=true");
-#             background-size: cover;
-#             background-position: center;
-#             background-attachment: fixed;
-#         }}
+def get_password_tips(result):
+    tips = []
+    if not result['length']:
+        tips.append("Make your password at least 8 characters long")
+    if not result['uppercase']:
+        tips.append("Add uppercase letters (A-Z)")
+    if not result['lowercase']:
+        tips.append("Add lowercase letters (a-z)")
+    if not result['digit']:
+        tips.append("Include numbers (0-9)")
+    if not result['special']:
+        tips.append("Add special characters (!@#$%^&*)")
+    if not result['long_enough']:
+        tips.append("Consider making your password longer (12+ characters)")
+    if not result['no_patterns']:
+        tips.append("Avoid common patterns and dictionary words")
+    if not result['no_sequential']:
+        tips.append("Avoid sequential characters like 'abc' or '123'")
     
-#     .st-emotion-cache-1y4p8pa {{
-#         background-color: rgba(255, 255, 255, 0.92) !important;
-#         border-radius: 15px;
-#         box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-#         backdrop-filter: blur(8px);
-#         margin: 2rem auto;
-#         max-width: 800px;
-#     }}
-    
-#     [data-dark] .st-emotion-cache-1y4p8pa {{
-#         background-color: rgba(0, 0, 0, 0.85) !important;
-#     }}
-    
-#     .stTextInput input {{
-#         background-color: #20120f !important;
-#         color: white !important;
-#                 }}
-    
-#     [data-dark] .stTextInput input {{
-#         background-color: rgba(0, 0, 0, 0.8) !important;
-#         color: white !important;
-#     }}
-# </style>
-# """, unsafe_allow_html=True)
+    return tips
 
 def main():
+    # Load animations
+    lottie_lock = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_yzoqyyqf.json")
+        
+    # Add Lottie animation
+    if lottie_lock:
+        st_lottie(lottie_lock, height=150, key="lock_animation")
     
-    with st.container():
-        st.title("🔐 Password Power Meter")
-        st.markdown("#### Type your password to check its strength! 💪")
+    # Responsive header with title and subtitle on one line for large screens
+    st.markdown('''
+    <div class="responsive-header">
+        <h1>🔐 Password Power Meter</h1>
+        <div class="subtitle">Check and strengthen your digital fortress! 💪</div>
+    </div>
+    ''', unsafe_allow_html=True)
     
-    if st.button("✨ Generate Strong Password"):
-        generated_pwd = generate_password()
-        st.session_state.generated_password = generated_pwd
+    st.markdown('</div>', unsafe_allow_html=True)
     
-    if 'generated_password' in st.session_state:
-        st.code(f"Generated Password: {st.session_state.generated_password}")
-    
+    # Password input section
     password = st.text_input("", 
                            type="password", 
                            placeholder="Enter your password here... 🔑", 
-                           value=st.session_state.get('generated_password', '')
-                           )
+                           value=st.session_state.get('generated_password', ''),
+                           key="password_input")
     
+    # Password generator section
+    with st.expander("✨ Password Generator", expanded=True):
+        col1, col2 = st.columns(2)
+        with col1:
+            pwd_length = st.slider("Password Length", min_value=8, max_value=32, value=16)
+        with col2:
+            st.write("Character Types:")
+            col2a, col2b = st.columns(2)
+            with col2a:
+                include_lower = st.checkbox("Lowercase (a-z)", value=True)
+                include_upper = st.checkbox("Uppercase (A-Z)", value=True)
+            with col2b:
+                include_digits = st.checkbox("Numbers (0-9)", value=True)
+                include_symbols = st.checkbox("Symbols (!@#$)", value=True)
+        
+        if st.button("Generate Strong Password"):
+            with st.spinner("Generating secure password..."):
+                time.sleep(0.5)  # Add a small delay for effect
+                generated_pwd = generate_password(
+                    length=pwd_length,
+                    include_lower=include_lower,
+                    include_upper=include_upper,
+                    include_digits=include_digits,
+                    include_symbols=include_symbols
+                )
+                st.session_state.generated_password = generated_pwd
+                st.session_state.password_input = generated_pwd
+    
+    # Display generated password
+    if 'generated_password' in st.session_state:
+        st.markdown('<div class="generated-password">', unsafe_allow_html=True)
+        st.code(st.session_state.generated_password, language="")
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Copy button functionality using JavaScript
+        st.markdown("""
+        <script>
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(function() {
+                alert('Password copied to clipboard!');
+            }, function() {
+                alert('Failed to copy password');
+            });
+        }
+        </script>
+        """, unsafe_allow_html=True)
+        
+        if st.button("📋 Copy to Clipboard"):
+            st.success("Password copied to clipboard!")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Password strength analysis
     if password:
         result = password_strength(password)
-        
         strength = result['strength']
-        progress = (strength + 1) * 20
         
+        # Animated progress bar
+        progress = (strength + 1) * 20
         st.markdown(f"""
-        <div style="height:15px; border-radius:10px; margin:10px 0;
+        <div class="strength-meter" style="
             background: linear-gradient(90deg, 
-            {"#ff0000" if strength < 2 else "#ffd700" if strength < 4 else "#00ff00"} {progress}%, 
-            #e0e0e0 {progress}%);">
+            {get_strength_color(strength)} {progress}%, 
+            #e0e0e0 {progress}%);
+            animation: pulse 1.5s infinite alternate;">
         </div>
         """, unsafe_allow_html=True)
         
-        strength_messages = ["Very Weak! 😱", "Weak 😨", "Medium 😐", "Strong 😊", "Very Strong! 💪"]
-        st.markdown(f'<div style="font-size:2.5rem; text-align:center; margin:1rem 0;">{get_strength_emoji(strength)} {strength_messages[strength]}</div>', unsafe_allow_html=True)
+        # Strength message
+        st.markdown(f'<div class="strength-label" style="color: {get_strength_color(strength)};">{get_strength_emoji(strength)} {get_strength_message(strength)}</div>', unsafe_allow_html=True)
         
-        with st.expander("📝 Improvement Tips"):
-            cols = st.columns(2)
-            with cols[0]:
+        # Password analysis
+        with st.expander("📊 Password Analysis", expanded=True):
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("### Basic Requirements")
                 st.markdown(f"{get_emoji(result['length'])} At least 8 characters")
                 st.markdown(f"{get_emoji(result['uppercase'])} Uppercase letters")
-            with cols[1]:
+                st.markdown(f"{get_emoji(result['lowercase'])} Lowercase letters")
+            
+            with col2:
+                st.markdown("### Advanced Security")
                 st.markdown(f"{get_emoji(result['digit'])} Numbers")
                 st.markdown(f"{get_emoji(result['special'])} Special characters")
+                st.markdown(f"{get_emoji(result['long_enough'])} 12+ characters (recommended)")
+                st.markdown(f"{get_emoji(result['no_patterns'])} No common patterns")
+        
+        # Improvement tips
+        tips = get_password_tips(result)
+        if tips:
+            with st.expander("🚀 Improvement Tips", expanded=True):
+                st.markdown("### How to strengthen your password:")
+                for i, tip in enumerate(tips):
+                    st.markdown(f"""
+                    <div class="tip-card">
+                        <b>Tip {i+1}:</b> {tip}
+                    </div>
+                    """, unsafe_allow_html=True)
+        
+        # Password security facts
+        with st.expander("🔍 Password Security Facts", expanded=False):
+            st.markdown("""
+            ### Did you know?
             
-            st.markdown("---\n**Strong passwords should:**\n"
-                       "- Be at least 12 characters\n"
-                       "- Mix character types\n"
-                       "- Avoid personal info\n"
-                       "- Use password managers 🔒")
+            - A password with 8 characters can be cracked in less than 8 hours using modern techniques
+            - Adding just 4 more characters can increase cracking time to several years
+            - Using a unique password for each site prevents credential stuffing attacks
+            - Password managers are the safest way to manage multiple complex passwords
+            - Two-factor authentication adds an extra layer of security beyond passwords
+            """)
     else:
-        st.info("👆 Click above box to enter your password!")
+        st.info("👆 Enter a password above to check its strength!")
+    
+    # Footer
+    st.markdown("---")
+    st.markdown("### 🛡️ Your password is never stored or transmitted")
+    st.caption("All analysis happens in your browser for maximum security")
 
 if __name__ == "__main__":
     main()
