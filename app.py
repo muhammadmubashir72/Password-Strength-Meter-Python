@@ -265,6 +265,10 @@ def get_password_tips(result):
     return tips
 
 def main():
+    # Initialize session state for generated password if it doesn't exist
+    if 'generated_password' not in st.session_state:
+        st.session_state.generated_password = ''
+    
     # Load animations
     lottie_lock = load_lottieurl("https://assets5.lottiefiles.com/packages/lf20_yzoqyyqf.json")
         
@@ -279,8 +283,6 @@ def main():
         <div class="subtitle">Check and strengthen your digital fortress! 💪</div>
     </div>
     ''', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
     
     # Password input section
     password = st.text_input("", 
@@ -315,31 +317,17 @@ def main():
                     include_symbols=include_symbols
                 )
                 st.session_state.generated_password = generated_pwd
-                st.session_state.password_input = generated_pwd
+                # Update the password input field with the generated password
+                st.rerun()
     
     # Display generated password
-    if 'generated_password' in st.session_state:
+    if st.session_state.generated_password:
         st.markdown('<div class="generated-password">', unsafe_allow_html=True)
         st.code(st.session_state.generated_password, language="")
         st.markdown('</div>', unsafe_allow_html=True)
         
-        # Copy button functionality using JavaScript
-        st.markdown("""
-        <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(function() {
-                alert('Password copied to clipboard!');
-            }, function() {
-                alert('Failed to copy password');
-            });
-        }
-        </script>
-        """, unsafe_allow_html=True)
-        
         if st.button("📋 Copy to Clipboard"):
             st.success("Password copied to clipboard!")
-    
-    st.markdown('</div>', unsafe_allow_html=True)
     
     # Password strength analysis
     if password:
